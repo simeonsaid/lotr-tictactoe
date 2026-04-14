@@ -4,237 +4,205 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Battle for Middle-earth</title>
-<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  #password-gate {
+  /* ── Shared gate styles ───────────────────────────── */
+  .gate {
     position: fixed; inset: 0; z-index: 100;
     background: #0a1a0a;
     background-image:
-      radial-gradient(ellipse at 50% 0%, rgba(34, 85, 34, 0.3) 0%, transparent 60%),
-      radial-gradient(ellipse at 50% 100%, rgba(10, 30, 10, 0.8) 0%, transparent 60%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 20px; font-family: 'Cinzel', serif;
+      radial-gradient(ellipse at 50% 0%,  rgba(34,85,34,.3)  0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(10,30,10,.8) 0%, transparent 60%);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 18px;
+    font-family: 'Cinzel', serif;
   }
-
-  #password-gate h2 {
+  .gate h2 {
     font-family: 'Cinzel Decorative', serif;
     font-size: 1.5rem; color: #5cb85c;
-    text-shadow: 0 0 20px rgba(92, 184, 92, 0.5);
+    text-shadow: 0 0 20px rgba(92,184,92,.5);
     letter-spacing: 2px; text-align: center;
   }
-
-  #password-gate p {
-    color: #4a7c4a; font-size: 0.85rem; letter-spacing: 2px;
-    text-align: center;
-  }
-
-  #password-gate input {
+  .gate p { color: #4a7c4a; font-size: .85rem; letter-spacing: 2px; text-align: center; }
+  .gate input {
     padding: 10px 18px; font-size: 1rem;
-    background: rgba(10, 30, 10, 0.8);
-    border: 1px solid #3d7a3d; border-radius: 6px;
+    background: rgba(10,30,10,.8); border: 1px solid #3d7a3d; border-radius: 6px;
     color: #c8e6c8; font-family: 'Cinzel', serif;
-    letter-spacing: 3px; text-align: center; outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 240px;
+    letter-spacing: 2px; text-align: center; outline: none;
+    transition: border-color .2s, box-shadow .2s; width: 280px;
   }
-
-  #password-gate input:focus {
-    border-color: #5cb85c;
-    box-shadow: 0 0 10px rgba(92, 184, 92, 0.3);
-  }
-
-  #password-gate button {
-    padding: 10px 32px; font-size: 0.9rem;
-    border: 1px solid #3d7a3d;
-    background: rgba(10, 30, 10, 0.6);
+  .gate input:focus { border-color: #5cb85c; box-shadow: 0 0 10px rgba(92,184,92,.3); }
+  .gate-btn {
+    padding: 10px 32px; font-size: .9rem;
+    border: 1px solid #3d7a3d; background: rgba(10,30,10,.6);
     color: #5cb85c; border-radius: 6px; cursor: pointer;
     font-family: 'Cinzel', serif; letter-spacing: 2px;
-    text-transform: uppercase;
-    transition: all 0.2s;
+    text-transform: uppercase; transition: all .2s;
   }
+  .gate-btn:hover { background: rgba(30,70,30,.8); border-color: #5cb85c; box-shadow: 0 0 12px rgba(92,184,92,.3); }
+  .gate-err { color: #a04040; font-size: .85rem; letter-spacing: 1px; min-height: 1.2em; }
+  .gate-note { color: #3d6a3d; font-size: .75rem; max-width: 300px; text-align: center; line-height: 1.6; }
+  .gate-note a { color: #5cb85c; }
 
-  #password-gate button:hover {
-    background: rgba(30, 70, 30, 0.8);
-    border-color: #5cb85c;
-    box-shadow: 0 0 12px rgba(92, 184, 92, 0.3);
+  /* ── Settings panel ───────────────────────────────── */
+  #settings-panel {
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(0,0,0,.85);
+    display: none; align-items: center; justify-content: center;
   }
-
-  #pw-error {
-    color: #a04040; font-size: 0.85rem;
-    letter-spacing: 1px; min-height: 1.2em;
+  #settings-panel.open { display: flex; }
+  .settings-box {
+    background: #0d220d; border: 1px solid #3d7a3d; border-radius: 10px;
+    padding: 32px; display: flex; flex-direction: column; gap: 16px;
+    width: 340px; font-family: 'Cinzel', serif;
   }
+  .settings-box h3 { color: #5cb85c; font-size: 1.1rem; letter-spacing: 2px; text-align: center; }
+  .settings-box label { color: #7ab87a; font-size: .8rem; letter-spacing: 1px; }
+  .settings-box input {
+    padding: 8px 14px; font-size: .85rem;
+    background: rgba(10,30,10,.9); border: 1px solid #2d5a2d; border-radius: 5px;
+    color: #c8e6c8; font-family: monospace; outline: none; width: 100%;
+    transition: border-color .2s;
+  }
+  .settings-box input:focus { border-color: #5cb85c; }
+  .settings-row { display: flex; gap: 10px; }
+  #hf-status { font-size: .8rem; color: #4a7c4a; min-height: 1.2em; text-align: center; }
 
+  /* ── Main body ────────────────────────────────────── */
   body {
     font-family: 'Cinzel', serif;
     display: flex; justify-content: center; align-items: center;
-    min-height: 100vh;
-    background: #0a1a0a;
+    min-height: 100vh; background: #0a1a0a;
     background-image:
-      radial-gradient(ellipse at 50% 0%, rgba(34, 85, 34, 0.3) 0%, transparent 60%),
-      radial-gradient(ellipse at 50% 100%, rgba(10, 30, 10, 0.8) 0%, transparent 60%);
-    color: #c8e6c8;
-    flex-direction: column; gap: 20px;
-    padding: 20px;
+      radial-gradient(ellipse at 50% 0%,  rgba(34,85,34,.3)  0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(10,30,10,.8) 0%, transparent 60%);
+    color: #c8e6c8; flex-direction: column; gap: 18px; padding: 20px;
   }
 
-  .ring-inscription {
-    font-size: 0.7rem;
-    color: #4a7c4a;
-    letter-spacing: 3px;
-    text-align: center;
-    opacity: 0.7;
-    font-style: italic;
+  .top-bar { display: flex; align-items: center; gap: 12px; }
+  .ring-inscription { font-size: .7rem; color: #4a7c4a; letter-spacing: 3px; opacity: .7; font-style: italic; }
+  #settings-btn {
+    background: none; border: 1px solid #2d5a2d; border-radius: 5px;
+    color: #4a7c4a; cursor: pointer; padding: 4px 8px; font-size: .85rem;
+    transition: all .2s;
   }
+  #settings-btn:hover { border-color: #5cb85c; color: #5cb85c; }
 
   h1 {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 1.8rem;
-    letter-spacing: 3px;
-    text-align: center;
-    color: #5cb85c;
-    text-shadow: 0 0 20px rgba(92, 184, 92, 0.5), 0 0 40px rgba(92, 184, 92, 0.2);
+    font-family: 'Cinzel Decorative', serif; font-size: 1.8rem;
+    letter-spacing: 3px; text-align: center; color: #5cb85c;
+    text-shadow: 0 0 20px rgba(92,184,92,.5), 0 0 40px rgba(92,184,92,.2);
   }
+  .subtitle { font-size: .85rem; color: #4a7c4a; letter-spacing: 4px; text-transform: uppercase; margin-top: -10px; }
 
-  .subtitle {
-    font-size: 0.85rem;
-    color: #4a7c4a;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    text-align: center;
-    margin-top: -12px;
+  /* AI badge */
+  #ai-badge {
+    font-size: .72rem; color: #3d6a3d; border: 1px solid #2a4a2a;
+    border-radius: 20px; padding: 3px 10px; letter-spacing: 1px;
+    transition: color .3s, border-color .3s;
   }
-
-  #status {
-    font-size: 1.1rem;
-    min-height: 1.6em;
-    text-align: center;
-    color: #8fbc8f;
-    letter-spacing: 1px;
-    transition: all 0.3s;
-    text-shadow: 0 0 10px rgba(143, 188, 143, 0.3);
-  }
+  #ai-badge.active { color: #5cb85c; border-color: #3d7a3d; }
 
   #score {
-    display: flex; gap: 28px; font-size: 0.95rem;
-    background: rgba(0, 30, 0, 0.6);
-    border: 1px solid #2d5a2d;
-    border-radius: 8px;
-    padding: 10px 24px;
+    display: flex; gap: 28px; font-size: .95rem;
+    background: rgba(0,30,0,.6); border: 1px solid #2d5a2d;
+    border-radius: 8px; padding: 10px 24px;
   }
-
   #score span { color: #7ab87a; }
   #score strong { color: #5cb85c; }
 
-  #board-wrap {
-    position: relative;
+  #status {
+    font-size: 1rem; min-height: 2.4em; text-align: center;
+    color: #8fbc8f; letter-spacing: 1px; line-height: 1.5;
+    max-width: 380px; transition: all .3s;
+    text-shadow: 0 0 10px rgba(143,188,143,.3);
   }
+  #status.thinking { color: #c8860a; animation: flicker .8s infinite alternate; }
+  @keyframes flicker { from { opacity: .6; } to { opacity: 1; } }
 
-  .corner {
-    position: absolute;
-    width: 20px; height: 20px;
-    border-color: #3d7a3d;
-    border-style: solid;
-    opacity: 0.7;
-  }
-  .corner.tl { top: -8px; left: -8px; border-width: 2px 0 0 2px; }
-  .corner.tr { top: -8px; right: -8px; border-width: 2px 2px 0 0; }
-  .corner.bl { bottom: -8px; left: -8px; border-width: 0 0 2px 2px; }
+  #board-wrap { position: relative; }
+  .corner { position: absolute; width: 20px; height: 20px; border-color: #3d7a3d; border-style: solid; opacity: .7; }
+  .corner.tl { top: -8px; left: -8px;   border-width: 2px 0 0 2px; }
+  .corner.tr { top: -8px; right: -8px;  border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: -8px; left: -8px;  border-width: 0 0 2px 2px; }
   .corner.br { bottom: -8px; right: -8px; border-width: 0 2px 2px 0; }
 
-  #board {
-    display: grid; grid-template-columns: repeat(3, 120px);
-    grid-template-rows: repeat(3, 120px); gap: 6px;
-  }
+  #board { display: grid; grid-template-columns: repeat(3,120px); grid-template-rows: repeat(3,120px); gap: 6px; }
 
   .cell {
-    background: rgba(10, 30, 10, 0.8);
-    border: 1px solid #2d5a2d;
-    border-radius: 6px;
+    background: rgba(10,30,10,.8); border: 1px solid #2d5a2d; border-radius: 6px;
     font-size: 2.8rem; cursor: pointer;
-    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    transition: background .15s, transform .1s, box-shadow .15s;
     display: flex; align-items: center; justify-content: center;
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
-
   .cell::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at center, rgba(92,184,92,0.05) 0%, transparent 70%);
-    opacity: 0; transition: opacity 0.2s;
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(92,184,92,.05) 0%, transparent 70%);
+    opacity: 0; transition: opacity .2s;
   }
-
   .cell:hover:not(.taken)::before { opacity: 1; }
-  .cell:hover:not(.taken) {
-    background: rgba(20, 50, 20, 0.9);
-    transform: scale(1.04);
-    box-shadow: 0 0 12px rgba(92, 184, 92, 0.2);
-    border-color: #4a9a4a;
-  }
-
+  .cell:hover:not(.taken) { background: rgba(20,50,20,.9); transform: scale(1.04); box-shadow: 0 0 12px rgba(92,184,92,.2); border-color: #4a9a4a; }
   .cell.taken { cursor: default; }
-
-  /* Player = Gandalf (white/silver star) */
-  .cell.x { color: #c8e6c8; text-shadow: 0 0 15px rgba(200, 230, 200, 0.8); }
-
-  /* Computer = Sauron (fiery gold/orange Eye) */
-  .cell.o { color: #c8860a; text-shadow: 0 0 15px rgba(200, 134, 10, 0.8); }
-
-  .cell.win {
-    background: rgba(30, 80, 30, 0.95);
-    border-color: #5cb85c;
-    box-shadow: 0 0 20px rgba(92, 184, 92, 0.5), inset 0 0 20px rgba(92, 184, 92, 0.1);
-    animation: pulse 1s infinite;
-  }
-
+  .cell.x { color: #c8e6c8; text-shadow: 0 0 15px rgba(200,230,200,.8); }
+  .cell.o { color: #c8860a; text-shadow: 0 0 15px rgba(200,134,10,.8); }
+  .cell.win { background: rgba(30,80,30,.95); border-color: #5cb85c; animation: pulse 1s infinite; }
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(92, 184, 92, 0.5); }
-    50% { box-shadow: 0 0 35px rgba(92, 184, 92, 0.8); }
+    0%,100% { box-shadow: 0 0 20px rgba(92,184,92,.5); }
+    50%      { box-shadow: 0 0 35px rgba(92,184,92,.8); }
   }
+
+  .legend { display: flex; gap: 24px; font-size: .8rem; color: #4a7c4a; letter-spacing: 1px; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
 
   #restart {
-    padding: 10px 32px; font-size: 0.95rem;
-    border: 1px solid #3d7a3d;
-    background: rgba(10, 30, 10, 0.6);
-    color: #5cb85c;
-    border-radius: 6px; cursor: pointer;
-    font-family: 'Cinzel', serif;
-    letter-spacing: 2px;
-    transition: all 0.2s;
-    text-transform: uppercase;
+    padding: 10px 32px; font-size: .95rem; border: 1px solid #3d7a3d;
+    background: rgba(10,30,10,.6); color: #5cb85c; border-radius: 6px; cursor: pointer;
+    font-family: 'Cinzel', serif; letter-spacing: 2px; text-transform: uppercase; transition: all .2s;
   }
-
-  #restart:hover {
-    background: rgba(30, 70, 30, 0.8);
-    border-color: #5cb85c;
-    box-shadow: 0 0 12px rgba(92, 184, 92, 0.3);
-    color: #8fbc8f;
-  }
-
-  .legend {
-    display: flex; gap: 24px; font-size: 0.8rem;
-    color: #4a7c4a;
-    letter-spacing: 1px;
-  }
-
-  .legend span { display: flex; align-items: center; gap: 6px; }
+  #restart:hover { background: rgba(30,70,30,.8); border-color: #5cb85c; box-shadow: 0 0 12px rgba(92,184,92,.3); color: #8fbc8f; }
 </style>
 </head>
 <body>
 
-<div id="password-gate">
+<!-- Password gate -->
+<div id="password-gate" class="gate">
   <h2>Speak, Friend,<br>and Enter</h2>
   <p>This realm is protected</p>
   <input type="password" id="pw-input" placeholder="Password" />
-  <button onclick="checkPassword()">Enter</button>
-  <p id="pw-error"></p>
+  <button class="gate-btn" onclick="checkPassword()">Enter</button>
+  <p id="pw-error" class="gate-err"></p>
 </div>
 
-<p class="ring-inscription">ash nazg durbatulûk, ash nazg gimbatul</p>
+<!-- Settings panel -->
+<div id="settings-panel">
+  <div class="settings-box">
+    <h3>⚙ The Palantír</h3>
+    <label>Hugging Face API Token</label>
+    <input type="password" id="hf-token-input" placeholder="hf_..." />
+    <p class="gate-note">
+      Get a free token at <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a>.
+      Without it, Sauron uses pre-written taunts.
+    </p>
+    <p id="hf-status"></p>
+    <div class="settings-row">
+      <button class="gate-btn" style="flex:1" onclick="saveHFToken()">Save</button>
+      <button class="gate-btn" style="flex:1;color:#a04040;border-color:#5a2d2d" onclick="closeSettings()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main UI -->
+<div class="top-bar">
+  <p class="ring-inscription">ash nazg durbatulûk, ash nazg gimbatul</p>
+  <button id="settings-btn" onclick="openSettings()">⚙</button>
+</div>
+
 <h1>Battle for Middle-earth</h1>
 <p class="subtitle">Tic Tac Toe</p>
+<p id="ai-badge">✦ Mistral-7B · Sauron speaks</p>
 
 <div id="score">
   <span>Gandalf (you): <strong id="scoreX">0</strong></span>
@@ -245,70 +213,136 @@
 <div id="status">You shall make a move!</div>
 
 <div id="board-wrap">
-  <div class="corner tl"></div>
-  <div class="corner tr"></div>
-  <div class="corner bl"></div>
-  <div class="corner br"></div>
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
   <div id="board"></div>
 </div>
 
 <div class="legend">
-  <span><span style="color:#c8e6c8">✦</span> Gandalf</span>
-  <span><span style="color:#c8860a">👁</span> Sauron</span>
+  <span><span style="color:#c8e6c8">✦</span> Gandalf (you)</span>
+  <span><span style="color:#c8860a">👁</span> Sauron (AI)</span>
 </div>
 
 <button id="restart">New Quest</button>
 
 <script>
-const board = document.getElementById('board');
-const statusEl = document.getElementById('status');
-const restartBtn = document.getElementById('restart');
-let cells, state, gameOver;
-let scores = { X: 0, O: 0, D: 0 };
+// ── Config ──────────────────────────────────────────────────────
+const HF_MODEL = 'mistralai/Mistral-7B-Instruct-v0.3';
+const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
 
-const WINS = [
-  [0,1,2],[3,4,5],[6,7,8],
-  [0,3,6],[1,4,7],[2,5,8],
-  [0,4,8],[2,4,6]
+const FALLBACK_TAUNTS = [
+  'Your resistance is as feeble as the light of a dying star, Gandalf.',
+  'The Nine are abroad. Your fellowship crumbles.',
+  'One does not simply defeat the Dark Lord.',
+  'My power grows. Yours wanes like the moon.',
+  'The Eye sees all, wizard. Even your pathetic strategy.',
+  'Mordor endures. Your hope does not.',
+  'I am patient. I have waited ages. I can wait one more move.',
 ];
 
-const MARKS = { X: '✦', O: '👁' };
+// ── State ────────────────────────────────────────────────────────
+const boardEl   = document.getElementById('board');
+const statusEl  = document.getElementById('status');
+const restartBtn= document.getElementById('restart');
+const aiBadge   = document.getElementById('ai-badge');
+let cells, state, gameOver, scores = { X:0, O:0, D:0 };
 
-const PLAYER_MSGS = [
-  'You shall make a move!',
-  'The Fellowship awaits your choice.',
-  'What say you, Gandalf?',
-  'The fate of Middle-earth is in your hands.',
-];
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const MARKS = { X:'✦', O:'👁' };
 
+// ── Password gate ────────────────────────────────────────────────
+function checkPassword() {
+  const inp = document.getElementById('pw-input');
+  if (inp.value === 'sharedpassword') {
+    document.getElementById('password-gate').style.display = 'none';
+  } else {
+    document.getElementById('pw-error').textContent = 'The password is wrong. You shall not pass!';
+    inp.value = ''; inp.focus();
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key==='Enter') checkPassword(); });
+
+// ── Settings ─────────────────────────────────────────────────────
+function openSettings() {
+  const tok = localStorage.getItem('hf_token') || '';
+  document.getElementById('hf-token-input').value = tok;
+  document.getElementById('hf-status').textContent = tok ? 'Token loaded.' : '';
+  document.getElementById('settings-panel').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-panel').classList.remove('open');
+}
+function saveHFToken() {
+  const val = document.getElementById('hf-token-input').value.trim();
+  if (val) {
+    localStorage.setItem('hf_token', val);
+    document.getElementById('hf-status').textContent = 'Token saved. Sauron awakens.';
+    aiBadge.classList.add('active');
+  } else {
+    localStorage.removeItem('hf_token');
+    document.getElementById('hf-status').textContent = 'Token cleared. Using fallback taunts.';
+    aiBadge.classList.remove('active');
+  }
+}
+// Reflect saved token on load
+if (localStorage.getItem('hf_token')) aiBadge.classList.add('active');
+
+// ── Game logic ────────────────────────────────────────────────────
 function init() {
-  board.innerHTML = '';
+  boardEl.innerHTML = '';
   state = Array(9).fill(null);
   gameOver = false;
-  statusEl.textContent = PLAYER_MSGS[Math.floor(Math.random() * PLAYER_MSGS.length)];
+  statusEl.className = '';
+  statusEl.textContent = randomPlayerMsg();
   cells = [];
   for (let i = 0; i < 9; i++) {
     const btn = document.createElement('button');
     btn.className = 'cell';
-    btn.dataset.index = i;
     btn.addEventListener('click', () => playerMove(i));
-    board.appendChild(btn);
+    boardEl.appendChild(btn);
     cells.push(btn);
   }
+}
+
+function randomPlayerMsg() {
+  const msgs = [
+    'You shall make a move!',
+    'The Fellowship awaits your choice.',
+    'What say you, Gandalf?',
+    'The fate of Middle-earth is in your hands.',
+  ];
+  return msgs[Math.floor(Math.random() * msgs.length)];
 }
 
 function playerMove(i) {
   if (gameOver || state[i]) return;
   place(i, 'X');
   if (checkEnd()) return;
-  statusEl.textContent = 'The Eye of Sauron turns...';
-  setTimeout(computerMove, 400);
+  statusEl.className = 'thinking';
+  statusEl.textContent = 'The Eye of Sauron turns…';
+  setTimeout(computerMove, 200);
 }
 
-function computerMove() {
+async function computerMove() {
   const move = bestMove();
   place(move, 'O');
-  if (!checkEnd()) statusEl.textContent = PLAYER_MSGS[Math.floor(Math.random() * PLAYER_MSGS.length)];
+  const ended = checkEnd();
+
+  // Build context for the LLM
+  const boardStr = [0,3,6].map(r =>
+    [state[r]||'-', state[r+1]||'-', state[r+2]||'-'].join('|')
+  ).join('\n');
+
+  let outcome = ended
+    ? (gameOver && document.getElementById('scoreO').textContent !== scores.O.toString()
+        ? 'You just won.' : 'The game ended.')
+    : null;
+
+  const taunt = await getSauronTaunt(boardStr, outcome);
+  statusEl.className = '';
+  if (!ended) {
+    statusEl.textContent = taunt;
+  }
 }
 
 function place(i, mark) {
@@ -318,27 +352,24 @@ function place(i, mark) {
 }
 
 function checkEnd() {
-  for (const [a, b, c] of WINS) {
-    if (state[a] && state[a] === state[b] && state[a] === state[c]) {
-      [a, b, c].forEach(i => cells[i].classList.add('win'));
+  for (const [a,b,c] of WINS) {
+    if (state[a] && state[a]===state[b] && state[a]===state[c]) {
+      [a,b,c].forEach(i => cells[i].classList.add('win'));
       gameOver = true;
-      if (state[a] === 'X') {
-        statusEl.textContent = 'You have passed the test, Gandalf!';
+      if (state[a]==='X') {
+        statusEl.textContent = 'You have passed the test, Gandalf! The light endures.';
         scores.X++;
       } else {
         statusEl.textContent = 'The Dark Lord claims victory. All hope is lost.';
         scores.O++;
       }
-      updateScore();
-      return true;
+      updateScore(); return true;
     }
   }
-  if (state.every(s => s)) {
+  if (state.every(s=>s)) {
     gameOver = true;
     statusEl.textContent = 'Neither side prevails. The world holds its breath.';
-    scores.D++;
-    updateScore();
-    return true;
+    scores.D++; updateScore(); return true;
   }
   return false;
 }
@@ -349,72 +380,68 @@ function updateScore() {
   document.getElementById('scoreD').textContent = scores.D;
 }
 
+// ── Minimax (optimal move selection) ─────────────────────────────
 function bestMove() {
   let best = -Infinity, move = -1;
   for (let i = 0; i < 9; i++) {
     if (!state[i]) {
       state[i] = 'O';
-      const score = minimax(false);
+      const s = minimax(false);
       state[i] = null;
-      if (score > best) { best = score; move = i; }
+      if (s > best) { best = s; move = i; }
     }
   }
   return move;
 }
-
 function minimax(isMax) {
-  const winner = getWinner();
-  if (winner === 'O') return 1;
-  if (winner === 'X') return -1;
-  if (state.every(s => s)) return 0;
-
+  const w = getWinner();
+  if (w==='O') return 1;
+  if (w==='X') return -1;
+  if (state.every(s=>s)) return 0;
   if (isMax) {
     let best = -Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!state[i]) {
-        state[i] = 'O';
-        best = Math.max(best, minimax(false));
-        state[i] = null;
-      }
-    }
+    for (let i=0;i<9;i++) if(!state[i]) { state[i]='O'; best=Math.max(best,minimax(false)); state[i]=null; }
     return best;
   } else {
     let best = Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!state[i]) {
-        state[i] = 'X';
-        best = Math.min(best, minimax(true));
-        state[i] = null;
-      }
-    }
+    for (let i=0;i<9;i++) if(!state[i]) { state[i]='X'; best=Math.min(best,minimax(true));  state[i]=null; }
     return best;
   }
 }
-
 function getWinner() {
-  for (const [a, b, c] of WINS) {
-    if (state[a] && state[a] === state[b] && state[a] === state[c]) return state[a];
-  }
+  for (const [a,b,c] of WINS)
+    if (state[a] && state[a]===state[b] && state[a]===state[c]) return state[a];
   return null;
+}
+
+// ── Hugging Face — Sauron taunts ──────────────────────────────────
+async function getSauronTaunt(boardStr, outcome) {
+  const token = localStorage.getItem('hf_token');
+  if (!token) return FALLBACK_TAUNTS[Math.floor(Math.random()*FALLBACK_TAUNTS.length)];
+
+  const prompt = `<s>[INST] You are Sauron, the Dark Lord of Mordor from Lord of the Rings. You are playing tic-tac-toe against Gandalf. The current board is:
+${boardStr}
+(O = your Eye, X = Gandalf's star, - = empty)
+${outcome ? outcome : 'The game continues.'}
+Write exactly ONE short menacing sentence (under 20 words) taunting Gandalf. Stay in character. No quotes, no prefix. [/INST]`;
+
+  try {
+    const res = await fetch(HF_API, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: 50, temperature: 0.9, return_full_text: false } }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const text = (data[0]?.generated_text || '').trim().split('\n')[0].replace(/^["']|["']$/g,'').trim();
+    return text || FALLBACK_TAUNTS[Math.floor(Math.random()*FALLBACK_TAUNTS.length)];
+  } catch {
+    return FALLBACK_TAUNTS[Math.floor(Math.random()*FALLBACK_TAUNTS.length)];
+  }
 }
 
 restartBtn.addEventListener('click', init);
 init();
-
-function checkPassword() {
-  const input = document.getElementById('pw-input');
-  if (input.value === 'sharedpassword') {
-    document.getElementById('password-gate').style.display = 'none';
-  } else {
-    document.getElementById('pw-error').textContent = 'The password is wrong. You shall not pass!';
-    input.value = '';
-    input.focus();
-  }
-}
-
-document.getElementById('pw-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkPassword();
-});
 </script>
 </body>
 </html>
