@@ -8,6 +8,64 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  #password-gate {
+    position: fixed; inset: 0; z-index: 100;
+    background: #0a1a0a;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(34, 85, 34, 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(10, 30, 10, 0.8) 0%, transparent 60%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; font-family: 'Cinzel', serif;
+  }
+
+  #password-gate h2 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.5rem; color: #5cb85c;
+    text-shadow: 0 0 20px rgba(92, 184, 92, 0.5);
+    letter-spacing: 2px; text-align: center;
+  }
+
+  #password-gate p {
+    color: #4a7c4a; font-size: 0.85rem; letter-spacing: 2px;
+    text-align: center;
+  }
+
+  #password-gate input {
+    padding: 10px 18px; font-size: 1rem;
+    background: rgba(10, 30, 10, 0.8);
+    border: 1px solid #3d7a3d; border-radius: 6px;
+    color: #c8e6c8; font-family: 'Cinzel', serif;
+    letter-spacing: 3px; text-align: center; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 240px;
+  }
+
+  #password-gate input:focus {
+    border-color: #5cb85c;
+    box-shadow: 0 0 10px rgba(92, 184, 92, 0.3);
+  }
+
+  #password-gate button {
+    padding: 10px 32px; font-size: 0.9rem;
+    border: 1px solid #3d7a3d;
+    background: rgba(10, 30, 10, 0.6);
+    color: #5cb85c; border-radius: 6px; cursor: pointer;
+    font-family: 'Cinzel', serif; letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  #password-gate button:hover {
+    background: rgba(30, 70, 30, 0.8);
+    border-color: #5cb85c;
+    box-shadow: 0 0 12px rgba(92, 184, 92, 0.3);
+  }
+
+  #pw-error {
+    color: #a04040; font-size: 0.85rem;
+    letter-spacing: 1px; min-height: 1.2em;
+  }
+
   body {
     font-family: 'Cinzel', serif;
     display: flex; justify-content: center; align-items: center;
@@ -165,6 +223,14 @@
 </style>
 </head>
 <body>
+
+<div id="password-gate">
+  <h2>Speak, Friend,<br>and Enter</h2>
+  <p>This realm is protected</p>
+  <input type="password" id="pw-input" placeholder="Password" />
+  <button onclick="checkPassword()">Enter</button>
+  <p id="pw-error"></p>
+</div>
 
 <p class="ring-inscription">ash nazg durbatulûk, ash nazg gimbatul</p>
 <h1>Battle for Middle-earth</h1>
@@ -334,6 +400,21 @@ function getWinner() {
 
 restartBtn.addEventListener('click', init);
 init();
+
+function checkPassword() {
+  const input = document.getElementById('pw-input');
+  if (input.value === 'sharedpassword') {
+    document.getElementById('password-gate').style.display = 'none';
+  } else {
+    document.getElementById('pw-error').textContent = 'The password is wrong. You shall not pass!';
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPassword();
+});
 </script>
 </body>
 </html>
