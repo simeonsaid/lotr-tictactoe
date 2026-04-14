@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Battle for Middle-earth</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cinzel', serif;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh;
+    background: #0a1a0a;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(34, 85, 34, 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(10, 30, 10, 0.8) 0%, transparent 60%);
+    color: #c8e6c8;
+    flex-direction: column; gap: 20px;
+    padding: 20px;
+  }
+
+  .ring-inscription {
+    font-size: 0.7rem;
+    color: #4a7c4a;
+    letter-spacing: 3px;
+    text-align: center;
+    opacity: 0.7;
+    font-style: italic;
+  }
+
+  h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+    text-align: center;
+    color: #5cb85c;
+    text-shadow: 0 0 20px rgba(92, 184, 92, 0.5), 0 0 40px rgba(92, 184, 92, 0.2);
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: #4a7c4a;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: -12px;
+  }
+
+  #status {
+    font-size: 1.1rem;
+    min-height: 1.6em;
+    text-align: center;
+    color: #8fbc8f;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    text-shadow: 0 0 10px rgba(143, 188, 143, 0.3);
+  }
+
+  #score {
+    display: flex; gap: 28px; font-size: 0.95rem;
+    background: rgba(0, 30, 0, 0.6);
+    border: 1px solid #2d5a2d;
+    border-radius: 8px;
+    padding: 10px 24px;
+  }
+
+  #score span { color: #7ab87a; }
+  #score strong { color: #5cb85c; }
+
+  #board-wrap {
+    position: relative;
+  }
+
+  .corner {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: #3d7a3d;
+    border-style: solid;
+    opacity: 0.7;
+  }
+  .corner.tl { top: -8px; left: -8px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: -8px; right: -8px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: -8px; left: -8px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: -8px; right: -8px; border-width: 0 2px 2px 0; }
+
+  #board {
+    display: grid; grid-template-columns: repeat(3, 120px);
+    grid-template-rows: repeat(3, 120px); gap: 6px;
+  }
+
+  .cell {
+    background: rgba(10, 30, 10, 0.8);
+    border: 1px solid #2d5a2d;
+    border-radius: 6px;
+    font-size: 2.8rem; cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cell::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(92,184,92,0.05) 0%, transparent 70%);
+    opacity: 0; transition: opacity 0.2s;
+  }
+
+  .cell:hover:not(.taken)::before { opacity: 1; }
+  .cell:hover:not(.taken) {
+    background: rgba(20, 50, 20, 0.9);
+    transform: scale(1.04);
+    box-shadow: 0 0 12px rgba(92, 184, 92, 0.2);
+    border-color: #4a9a4a;
+  }
+
+  .cell.taken { cursor: default; }
+
+  /* Player = Gandalf (white/silver star) */
+  .cell.x { color: #c8e6c8; text-shadow: 0 0 15px rgba(200, 230, 200, 0.8); }
+
+  /* Computer = Sauron (fiery gold/orange Eye) */
+  .cell.o { color: #c8860a; text-shadow: 0 0 15px rgba(200, 134, 10, 0.8); }
+
+  .cell.win {
+    background: rgba(30, 80, 30, 0.95);
+    border-color: #5cb85c;
+    box-shadow: 0 0 20px rgba(92, 184, 92, 0.5), inset 0 0 20px rgba(92, 184, 92, 0.1);
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(92, 184, 92, 0.5); }
+    50% { box-shadow: 0 0 35px rgba(92, 184, 92, 0.8); }
+  }
+
+  #restart {
+    padding: 10px 32px; font-size: 0.95rem;
+    border: 1px solid #3d7a3d;
+    background: rgba(10, 30, 10, 0.6);
+    color: #5cb85c;
+    border-radius: 6px; cursor: pointer;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  #restart:hover {
+    background: rgba(30, 70, 30, 0.8);
+    border-color: #5cb85c;
+    box-shadow: 0 0 12px rgba(92, 184, 92, 0.3);
+    color: #8fbc8f;
+  }
+
+  .legend {
+    display: flex; gap: 24px; font-size: 0.8rem;
+    color: #4a7c4a;
+    letter-spacing: 1px;
+  }
+
+  .legend span { display: flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+
+<p class="ring-inscription">ash nazg durbatulûk, ash nazg gimbatul</p>
+<h1>Battle for Middle-earth</h1>
+<p class="subtitle">Tic Tac Toe</p>
+
+<div id="score">
+  <span>Gandalf (you): <strong id="scoreX">0</strong></span>
+  <span>Sauron: <strong id="scoreO">0</strong></span>
+  <span>Stalemate: <strong id="scoreD">0</strong></span>
+</div>
+
+<div id="status">You shall make a move!</div>
+
+<div id="board-wrap">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+  <div id="board"></div>
+</div>
+
+<div class="legend">
+  <span><span style="color:#c8e6c8">✦</span> Gandalf</span>
+  <span><span style="color:#c8860a">👁</span> Sauron</span>
+</div>
+
+<button id="restart">New Quest</button>
+
+<script>
+const board = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const restartBtn = document.getElementById('restart');
+let cells, state, gameOver;
+let scores = { X: 0, O: 0, D: 0 };
+
+const WINS = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+const MARKS = { X: '✦', O: '👁' };
+
+const PLAYER_MSGS = [
+  'You shall make a move!',
+  'The Fellowship awaits your choice.',
+  'What say you, Gandalf?',
+  'The fate of Middle-earth is in your hands.',
+];
+
+function init() {
+  board.innerHTML = '';
+  state = Array(9).fill(null);
+  gameOver = false;
+  statusEl.textContent = PLAYER_MSGS[Math.floor(Math.random() * PLAYER_MSGS.length)];
+  cells = [];
+  for (let i = 0; i < 9; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'cell';
+    btn.dataset.index = i;
+    btn.addEventListener('click', () => playerMove(i));
+    board.appendChild(btn);
+    cells.push(btn);
+  }
+}
+
+function playerMove(i) {
+  if (gameOver || state[i]) return;
+  place(i, 'X');
+  if (checkEnd()) return;
+  statusEl.textContent = 'The Eye of Sauron turns...';
+  setTimeout(computerMove, 400);
+}
+
+function computerMove() {
+  const move = bestMove();
+  place(move, 'O');
+  if (!checkEnd()) statusEl.textContent = PLAYER_MSGS[Math.floor(Math.random() * PLAYER_MSGS.length)];
+}
+
+function place(i, mark) {
+  state[i] = mark;
+  cells[i].textContent = MARKS[mark];
+  cells[i].classList.add('taken', mark.toLowerCase());
+}
+
+function checkEnd() {
+  for (const [a, b, c] of WINS) {
+    if (state[a] && state[a] === state[b] && state[a] === state[c]) {
+      [a, b, c].forEach(i => cells[i].classList.add('win'));
+      gameOver = true;
+      if (state[a] === 'X') {
+        statusEl.textContent = 'You have passed the test, Gandalf!';
+        scores.X++;
+      } else {
+        statusEl.textContent = 'The Dark Lord claims victory. All hope is lost.';
+        scores.O++;
+      }
+      updateScore();
+      return true;
+    }
+  }
+  if (state.every(s => s)) {
+    gameOver = true;
+    statusEl.textContent = 'Neither side prevails. The world holds its breath.';
+    scores.D++;
+    updateScore();
+    return true;
+  }
+  return false;
+}
+
+function updateScore() {
+  document.getElementById('scoreX').textContent = scores.X;
+  document.getElementById('scoreO').textContent = scores.O;
+  document.getElementById('scoreD').textContent = scores.D;
+}
+
+function bestMove() {
+  let best = -Infinity, move = -1;
+  for (let i = 0; i < 9; i++) {
+    if (!state[i]) {
+      state[i] = 'O';
+      const score = minimax(false);
+      state[i] = null;
+      if (score > best) { best = score; move = i; }
+    }
+  }
+  return move;
+}
+
+function minimax(isMax) {
+  const winner = getWinner();
+  if (winner === 'O') return 1;
+  if (winner === 'X') return -1;
+  if (state.every(s => s)) return 0;
+
+  if (isMax) {
+    let best = -Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (!state[i]) {
+        state[i] = 'O';
+        best = Math.max(best, minimax(false));
+        state[i] = null;
+      }
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (!state[i]) {
+        state[i] = 'X';
+        best = Math.min(best, minimax(true));
+        state[i] = null;
+      }
+    }
+    return best;
+  }
+}
+
+function getWinner() {
+  for (const [a, b, c] of WINS) {
+    if (state[a] && state[a] === state[b] && state[a] === state[c]) return state[a];
+  }
+  return null;
+}
+
+restartBtn.addEventListener('click', init);
+init();
+</script>
+</body>
+</html>
